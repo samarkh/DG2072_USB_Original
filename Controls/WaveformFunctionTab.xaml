@@ -1,0 +1,393 @@
+<UserControl x:Class="DG2072_USB_Control.WaveformFunctionTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DG2072_USB_Control"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Tab navigation for different waveform functions -->
+        <TabControl Grid.Row="0" Margin="5">
+
+            <TabItem Header="Harmonic">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Channel 1 Fundamental Controls - moved to top -->
+                    <GroupBox Header="Channel 1 Fundamental" Grid.Column="0" Margin="5,0,5,10">
+                        <StackPanel>
+                            <!-- Frequency Control -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Frequency:" Width="100"/>
+                                <TextBox x:Name="Ch1FundamentalFrequencyTextBox" Width="100" LostFocus="Ch1FundamentalFrequencyTextBox_LostFocus" Text="1000"/>
+                                <ComboBox x:Name="Ch1FundamentalFrequencyUnitComboBox" Width="60" SelectionChanged="Ch1FundamentalFrequencyUnitComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="MHz"/>
+                                    <ComboBoxItem Content="kHz"/>
+                                    <ComboBoxItem Content="Hz"/>
+                                    <ComboBoxItem Content="mHz"/>
+                                    <ComboBoxItem Content="&#x03BC;Hz"/>
+                                </ComboBox>
+                            </DockPanel> 
+                            
+                            <!-- Amplitude Control -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Amplitude:" Width="100"/>
+                                <TextBox x:Name="Ch1FundamentalAmplitudeTextBox" Width="100" LostFocus="Ch1FundamentalAmplitudeTextBox_LostFocus" Tag="1" Text="1.0"/>
+                                <ComboBox x:Name="Ch1FundamentalAmplitudeUnitComboBox" Width="60" SelectionChanged="Ch1FundamentalAmplitudeUnitComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="V"/>
+                                    <ComboBoxItem Content="mV"/>
+                                </ComboBox>
+                            </DockPanel>
+
+
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Channel 2 Fundamental Controls - moved to top -->
+                    <GroupBox Header="Channel 2 Fundamental" Grid.Column="1" Margin="5,0,5,10">
+                        <StackPanel>
+                            <!-- Frequency Control -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Frequency:" Width="100"/>
+                                <TextBox x:Name="Ch2FundamentalFrequencyTextBox" Width="100" LostFocus="Ch2FundamentalFrequencyTextBox_LostFocus" Text="1000"/>
+                                <ComboBox x:Name="Ch2FundamentalFrequencyUnitComboBox" Width="60" SelectionChanged="Ch2FundamentalFrequencyUnitComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="MHz"/>
+                                    <ComboBoxItem Content="kHz"/>
+                                    <ComboBoxItem Content="Hz"/>
+                                    <ComboBoxItem Content="mHz"/>
+                                    <ComboBoxItem Content="&#x03BC;Hz"/>
+                                </ComboBox>
+                            </DockPanel>
+
+                            <!-- Amplitude Control -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Amplitude:" Width="100"/>
+                                <TextBox x:Name="Ch2FundamentalAmplitudeTextBox" Width="100" LostFocus="Ch2FundamentalAmplitudeTextBox_LostFocus" Tag="1" Text="1.0"/>
+                                <ComboBox x:Name="Ch2FundamentalAmplitudeUnitComboBox" Width="60" SelectionChanged="Ch2FundamentalAmplitudeUnitComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="V"/>
+                                    <ComboBoxItem Content="mV"/>
+                                </ComboBox>
+                            </DockPanel>
+
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Harmonic Channel 1 Controls -->
+                    <GroupBox Header="Channel 1 Harmonics" Grid.Column="0" Margin="5,100,5,5">
+                        <StackPanel>
+                            <DockPanel Margin="0,5">
+                                <Label Content="Enable Harmonics:" Width="120"/>
+                                <ToggleButton x:Name="Ch1HarmonicsToggle" Content="OFF" Width="80" Click="Ch1HarmonicsToggle_Click"/>
+                            </DockPanel>
+
+                            <!-- Amplitude Mode Selection -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Amplitude Mode:" Width="120"/>
+                                <RadioButton x:Name="Ch1AmplitudePercentageMode" Content="Percentage" Margin="0,0,10,0" IsChecked="True" GroupName="Ch1AmplitudeMode" Checked="Ch1AmplitudeModeChanged"/>
+                                <RadioButton x:Name="Ch1AmplitudeAbsoluteMode" Content="Absolute" GroupName="Ch1AmplitudeMode" Checked="Ch1AmplitudeModeChanged"/>
+                            </DockPanel>
+
+                            <!-- Headers for the harmonic parameters -->
+                            <Grid Margin="0,10,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Harmonic" Grid.Column="0" FontWeight="Bold"/>
+                                <TextBlock Text="Enable" Grid.Column="1" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="Ch1AmplitudeHeader" Text="Amplitude (%)" Grid.Column="2" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Phase (&#176;)" Grid.Column="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- Fundamental (hidden for clarity since we already have it above) -->
+
+                            <!-- Harmonic rows 2-8 remain the same -->
+                            <!-- Harmonic 2 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="2nd Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic2CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="2"/>
+                                <TextBox x:Name="Ch1Harmonic2AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="2"/>
+                                <TextBox x:Name="Ch1Harmonic2PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="2"/>
+                            </Grid>
+
+                            <!-- Continue with Harmonics 3-8 -->
+
+
+                            <!-- Harmonic 3 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="3rd Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic3CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="3"/>
+                                <TextBox x:Name="Ch1Harmonic3AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="2"/>
+                                <TextBox x:Name="Ch1Harmonic3PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="3"/>
+                            </Grid>
+
+                            <!-- Harmonic 4 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="4th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic4CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="4"/>
+                                <TextBox x:Name="Ch1Harmonic4AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="4"/>
+                                <TextBox x:Name="Ch1Harmonic4PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="4"/>
+                            </Grid>
+
+                            <!-- Harmonic 5 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="5th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic5CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="5"/>
+                                <TextBox x:Name="Ch1Harmonic5AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="5"/>
+                                <TextBox x:Name="Ch1Harmonic5PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="5"/>
+                            </Grid>
+
+                            <!-- Harmonic 6 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="6th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic6CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="6"/>
+                                <TextBox x:Name="Ch1Harmonic6AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="6"/>
+                                <TextBox x:Name="Ch1Harmonic6PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="6"/>
+                            </Grid>
+
+                            <!-- Harmonic 7 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="7th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic7CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="7"/>
+                                <TextBox x:Name="Ch1Harmonic7AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="7"/>
+                                <TextBox x:Name="Ch1Harmonic7PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="7"/>
+                            </Grid>
+
+
+                            <!-- Harmonic 8 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="8th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch1Harmonic8CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch1HarmonicCheckBox_Changed" Unchecked="Ch1HarmonicCheckBox_Changed" Tag="8"/>
+                                <TextBox x:Name="Ch1Harmonic8AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicAmplitudeTextBox_LostFocus" Tag="8"/>
+                                <TextBox x:Name="Ch1Harmonic8PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch1HarmonicPhaseTextBox_LostFocus" Tag="8"/>
+                            </Grid>
+
+
+                            <!-- Apply Button -->
+                            <Button x:Name="Ch1ApplyHarmonicsButton" Content="Apply Harmonic Settings" Margin="0,10" Click="Ch1ApplyHarmonicsButton_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Harmonic Channel 2 Controls -->
+                    <GroupBox Header="Channel 2 Harmonics" Grid.Column="1" Margin="5,100,5,5">
+                        <StackPanel>
+                            <DockPanel Margin="0,5">
+                                <Label Content="Enable Harmonics:" Width="120"/>
+                                <ToggleButton x:Name="Ch2HarmonicsToggle" Content="OFF" Width="80" Click="Ch2HarmonicsToggle_Click"/>
+                            </DockPanel>
+
+                            <!-- Amplitude Mode Selection -->
+                            <DockPanel Margin="0,5">
+                                <Label Content="Amplitude Mode:" Width="120"/>
+                                <RadioButton x:Name="Ch2AmplitudePercentageMode" Content="Percentage" Margin="0,0,10,0" IsChecked="True" GroupName="Ch2AmplitudeMode" Checked="Ch2AmplitudeModeChanged"/>
+                                <RadioButton x:Name="Ch2AmplitudeAbsoluteMode" Content="Absolute" GroupName="Ch2AmplitudeMode" Checked="Ch2AmplitudeModeChanged"/>
+                            </DockPanel>
+
+                            <!-- Headers for the harmonic parameters -->
+                            <Grid Margin="0,10,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Harmonic" Grid.Column="0" FontWeight="Bold"/>
+                                <TextBlock Text="Enable" Grid.Column="1" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="Ch2AmplitudeHeader" Text="Amplitude (%)" Grid.Column="2" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Phase (&#176;)" Grid.Column="3" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </Grid>
+                            
+                            
+                            <!-- Continue with Harmonics 2-8 for Channel 2 -->
+                            <!-- Harmonic 2 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="2nd Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic2CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="2"/>
+                                <TextBox x:Name="Ch2Harmonic2AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="2"/>
+                                <TextBox x:Name="Ch2Harmonic2PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="2"/>
+                            </Grid>
+                            
+                            <!-- Harmonic 3 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="3rd Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic3CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="3"/>
+                                <TextBox x:Name="Ch2Harmonic3AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="3"/>
+                                <TextBox x:Name="Ch2Harmonic3PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="3"/>
+                            </Grid>
+
+                            <!-- Harmonic 4 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="4th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic4CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="4"/>
+                                <TextBox x:Name="Ch2Harmonic4AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="4"/>
+                                <TextBox x:Name="Ch2Harmonic4PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="4"/>
+                            </Grid>
+                            
+                            <!-- Harmonic 5 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="5th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic5CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="5"/>
+                                <TextBox x:Name="Ch2Harmonic5AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="5"/>
+                                <TextBox x:Name="Ch2Harmonic5PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="5"/>
+                            </Grid>
+
+                            <!-- Harmonic 6 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="6th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic6CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="6"/>
+                                <TextBox x:Name="Ch2Harmonic6AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="6"/>
+                                <TextBox x:Name="Ch2Harmonic6PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="6"/>
+                            </Grid>
+
+                            <!-- Harmonic 7 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="7th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic7CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="7"/>
+                                <TextBox x:Name="Ch2Harmonic7AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="7"/>
+                                <TextBox x:Name="Ch2Harmonic7PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="7"/>
+                            </Grid>
+
+                            <!-- Harmonic 8 -->
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="8th Harmonic" Grid.Column="0"/>
+                                <CheckBox x:Name="Ch2Harmonic8CheckBox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="Ch2HarmonicCheckBox_Changed" Unchecked="Ch2HarmonicCheckBox_Changed" Tag="8"/>
+                                <TextBox x:Name="Ch2Harmonic8AmplitudeTextBox" Grid.Column="2" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicAmplitudeTextBox_LostFocus" Tag="8"/>
+                                <TextBox x:Name="Ch2Harmonic8PhaseTextBox" Grid.Column="3" Text="0.0" Margin="5,0" LostFocus="Ch2HarmonicPhaseTextBox_LostFocus" Tag="8"/>
+                            </Grid>
+
+
+                            <!-- Apply Button -->
+                            <Button x:Name="Ch2ApplyHarmonicsButton" Content="Apply Harmonic Settings" Margin="0,10" Click="Ch2ApplyHarmonicsButton_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Modulation">
+                <Grid Margin="10">
+                    <!-- Placeholder for future implementation of modulation controls -->
+                    <TextBlock Text="Modulation functionality to be implemented." 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               FontStyle="Italic"/>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Sweep">
+                <Grid Margin="10">
+                    <!-- Placeholder for future implementation of sweep controls -->
+                    <TextBlock Text="Sweep functionality to be implemented." 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               FontStyle="Italic"/>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Burst">
+                <Grid Margin="10">
+                    <!-- Placeholder for future implementation of burst controls -->
+                    <TextBlock Text="Burst functionality to be implemented." 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               FontStyle="Italic"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

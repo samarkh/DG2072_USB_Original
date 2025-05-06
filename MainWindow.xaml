@@ -1,0 +1,603 @@
+<Window x:Class="DG2072_USB_Control.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DG2072_USB_Control"
+        xmlns:converters="clr-namespace:DG2072_USB_Control.Waveforms"
+        mc:Ignorable="d"
+        Title="Rigol DG2072 USB Control" Height="850" Width="900"
+        Loaded="Window_Loaded" Closing="Window_Closing">
+
+    <Window.Resources>
+        <converters:VisibilityConverter x:Key="VisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Connection Status Bar with Channel Output Controls -->
+        <DockPanel Grid.Row="0" Margin="10,5">
+            <Label Content="Connection Status:" VerticalAlignment="Center"/>
+            <TextBlock x:Name="ConnectionStatusTextBlock" VerticalAlignment="Center" Margin="5,0" Text="Disconnected" Foreground="Red"/>
+
+            <!-- Channel Output Controls -->
+            <DockPanel HorizontalAlignment="Right" Margin="20,0,20,0">
+                <Label Content="CH1:" VerticalAlignment="Center"/>
+                <ToggleButton x:Name="Ch1OutputToggle" Content="OFF" Width="60" Click="Ch1OutputToggle_Click" IsEnabled="False"/>
+                <Label Content="CH2:" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                <ToggleButton x:Name="Ch2OutputToggle" Content="OFF" Width="60" Click="Ch2OutputToggle_Click" IsEnabled="False"/>
+            </DockPanel>
+
+            <ToggleButton x:Name="ConnectionToggle" Content="Connect" Width="100" Margin="5,0" HorizontalAlignment="Right" Click="ConnectionToggle_Click"/>
+            <Button x:Name="IdentifyButton" Content="Identify" Click="IdentifyButton_Click" Width="100" Margin="5,0" HorizontalAlignment="Right" IsEnabled="False"/>
+        </DockPanel>
+
+        <!-- Main Control Panel -->
+        <TabControl Grid.Row="1" Margin="10">
+            <!-- Basic Waveforms Tab -->
+            <TabItem Header="Basic Waveforms">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Channel 1 Controls -->
+                    <GroupBox Header="Channel 1" Grid.Column="0" Margin="5">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Waveform:" Width="100"/>
+                                    <ComboBox x:Name="Ch1WaveformComboBox" Width="150" SelectionChanged="Ch1WaveformComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Sine"/>
+                                        <ComboBoxItem Content="Square"/>
+                                        <ComboBoxItem Content="Ramp"/>
+                                        <ComboBoxItem Content="Pulse"/>
+                                        <ComboBoxItem Content="Noise"/>
+                                        <ComboBoxItem Content="DC"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <!-- Common Parameters - will be enabled/disabled based on waveform type -->
+                                <DockPanel x:Name="Ch1FrequencyPanel" Margin="0,5" 
+                                           Visibility="{Binding Ch1SelectedWaveform, 
+                                           Converter={StaticResource VisibilityConverter}, 
+                                           ConverterParameter=FREQUENCY}">
+                                    <Label Content="Frequency:" Width="100"/>
+                                    <TextBox x:Name="Ch1FrequencyTextBox" Width="100" LostFocus="Ch1FrequencyTextBox_LostFocus" Text="1000"/>
+                                    <ComboBox x:Name="Ch1FrequencyUnitComboBox" Width="60" SelectionChanged="Ch1FrequencyUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="MHz"/>
+                                        <ComboBoxItem Content="kHz"/>
+                                        <ComboBoxItem Content="Hz"/>
+                                        <ComboBoxItem Content="mHz"/>
+                                        <ComboBoxItem Content="µHz"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Amplitude:" Width="100"/>
+                                    <TextBox x:Name="Ch1AmplitudeTextBox" Width="100" LostFocus="Ch1AmplitudeTextBox_LostFocus" Text="1.0"/>
+                                    <ComboBox x:Name="Ch1AmplitudeUnitComboBox" Width="60" SelectionChanged="Ch1AmplitudeUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="V"/>
+                                        <ComboBoxItem Content="mV"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Offset:" Width="100"/>
+                                    <TextBox x:Name="Ch1OffsetTextBox" Width="100" LostFocus="Ch1OffsetTextBox_LostFocus" Text="0.0"/>
+                                    <ComboBox x:Name="Ch1OffsetUnitComboBox" Width="60" SelectionChanged="Ch1OffsetUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="V"/>
+                                        <ComboBoxItem Content="mV"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel x:Name="Ch1PhasePanel" Margin="0,5"
+                                            Visibility="{Binding Ch1SelectedWaveform, 
+                                            Converter={StaticResource VisibilityConverter}, 
+                                            ConverterParameter=PHASE}">
+                                    <Label Content="Phase (°):" Width="100"/>
+                                    <TextBox x:Name="Ch1PhaseTextBox" Width="150" LostFocus="Ch1PhaseTextBox_LostFocus" Text="0.0"/>
+                                </DockPanel>
+
+                                <!-- Waveform-specific parameter controls -->
+                                <!-- Ramp Parameters -->
+                                <GroupBox x:Name="Ch1RampParamsGroup" Header="Ramp Parameters" Margin="0,10" 
+                                      Visibility="{Binding Ch1SelectedWaveform, 
+                                                 Converter={StaticResource VisibilityConverter}, 
+                                                 ConverterParameter=RAMP}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Symmetry (%):" Width="100"/>
+                                            <TextBox x:Name="Ch1RampSymmetryTextBox" Width="150" LostFocus="Ch1RampSymmetryTextBox_LostFocus" Text="50.0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- Square Parameters -->
+                                <GroupBox x:Name="Ch1SquareParamsGroup" Header="Square Parameters" Margin="0,10" 
+                                Visibility="{Binding Ch1SelectedWaveform, 
+                                Converter={StaticResource VisibilityConverter}, 
+                                ConverterParameter=SQUARE}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Duty Cycle (%):" Width="100"/>
+                                            <TextBox x:Name="Ch1SquareDutyCycleTextBox" Width="150" LostFocus="Ch1SquareDutyCycleTextBox_LostFocus" Text="50.0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- Pulse Parameters -->
+                                <GroupBox x:Name="Ch1PulseParamsGroup" Header="Pulse Parameters" Margin="0,10" 
+                                      Visibility="{Binding Ch1SelectedWaveform, 
+                                      Converter={StaticResource VisibilityConverter}, 
+                                      ConverterParameter=PULSE}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Period:" Width="100"/>
+                                            <TextBox x:Name="Ch1PulsePeriodTextBox" Width="100" LostFocus="Ch1PulsePeriodTextBox_LostFocus" Text="0.001"/>
+                                            <ComboBox x:Name="Ch1PulsePeriodUnitComboBox" Width="60" SelectionChanged="Ch1PulsePeriodUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Width:" Width="100"/>
+                                            <TextBox x:Name="Ch1PulseWidthTextBox" Width="100" LostFocus="Ch1PulseWidthTextBox_LostFocus" Text="0.0005"/>
+                                            <ComboBox x:Name="Ch1PulseWidthUnitComboBox" Width="60" SelectionChanged="Ch1PulseWidthUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Rise Time:" Width="100"/>
+                                            <TextBox x:Name="Ch1PulseRiseTimeTextBox" Width="100" LostFocus="Ch1PulseRiseTimeTextBox_LostFocus" Text="20"/>
+                                            <ComboBox x:Name="Ch1PulseRiseTimeUnitComboBox" Width="60" SelectionChanged="Ch1PulseRiseTimeUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Fall Time:" Width="100"/>
+                                            <TextBox x:Name="Ch1PulseFallTimeTextBox" Width="100" LostFocus="Ch1PulseFallTimeTextBox_LostFocus" Text="20"/>
+                                            <ComboBox x:Name="Ch1PulseFallTimeUnitComboBox" Width="60" SelectionChanged="Ch1PulseFallTimeUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <Button x:Name="Ch1ApplyButton" Content="Apply Settings" Margin="0,10" Click="Ch1ApplyButton_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <!-- Channel 2 Controls -->
+                    <GroupBox Header="Channel 2" Grid.Column="1" Margin="5">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Waveform:" Width="100"/>
+                                    <ComboBox x:Name="Ch2WaveformComboBox" Width="150" SelectionChanged="Ch2WaveformComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Sine"/>
+                                        <ComboBoxItem Content="Square"/>
+                                        <ComboBoxItem Content="Ramp"/>
+                                        <ComboBoxItem Content="Pulse"/>
+                                        <ComboBoxItem Content="Noise"/>
+                                        <ComboBoxItem Content="DC"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <!-- Common Parameters - will be enabled/disabled based on waveform type -->
+                                <DockPanel x:Name="Ch2FrequencyPanel" Margin="0,5" 
+                                           Visibility="{Binding Ch2SelectedWaveform, 
+                                           Converter={StaticResource VisibilityConverter}, 
+                                           ConverterParameter=FREQUENCY}">
+                                    <Label Content="Frequency:" Width="100"/>
+                                    <TextBox x:Name="Ch2FrequencyTextBox" Width="100" LostFocus="Ch2FrequencyTextBox_LostFocus" Text="1000"/>
+                                    <ComboBox x:Name="Ch2FrequencyUnitComboBox" Width="60" SelectionChanged="Ch2FrequencyUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="MHz"/>
+                                        <ComboBoxItem Content="kHz"/>
+                                        <ComboBoxItem Content="Hz"/>
+                                        <ComboBoxItem Content="mHz"/>
+                                        <ComboBoxItem Content="µHz"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Amplitude:" Width="100"/>
+                                    <TextBox x:Name="Ch2AmplitudeTextBox" Width="100" LostFocus="Ch2AmplitudeTextBox_LostFocus" Text="1.0"/>
+                                    <ComboBox x:Name="Ch2AmplitudeUnitComboBox" Width="60" SelectionChanged="Ch2AmplitudeUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="V"/>
+                                        <ComboBoxItem Content="mV"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Offset:" Width="100"/>
+                                    <TextBox x:Name="Ch2OffsetTextBox" Width="100" LostFocus="Ch2OffsetTextBox_LostFocus" Text="0.0"/>
+                                    <ComboBox x:Name="Ch2OffsetUnitComboBox" Width="60" SelectionChanged="Ch2OffsetUnitComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="V"/>
+                                        <ComboBoxItem Content="mV"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <DockPanel x:Name="Ch2PhasePanel" Margin="0,5"
+                                            Visibility="{Binding Ch2SelectedWaveform, 
+                                            Converter={StaticResource VisibilityConverter}, 
+                                            ConverterParameter=PHASE}">
+                                    <Label Content="Phase (°):" Width="100"/>
+                                    <TextBox x:Name="Ch2PhaseTextBox" Width="150" LostFocus="Ch2PhaseTextBox_LostFocus" Text="0.0"/>
+                                </DockPanel>
+
+                                <!-- Waveform-specific parameter controls -->
+                                <!-- Ramp Parameters -->
+                                <GroupBox x:Name="Ch2RampParamsGroup" Header="Ramp Parameters" Margin="0,10" 
+                                      Visibility="{Binding Ch2SelectedWaveform, 
+                                                 Converter={StaticResource VisibilityConverter}, 
+                                                 ConverterParameter=RAMP}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Symmetry (%):" Width="100"/>
+                                            <TextBox x:Name="Ch2RampSymmetryTextBox" Width="150" LostFocus="Ch2RampSymmetryTextBox_LostFocus" Text="50.0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- Square Parameters -->
+                                <GroupBox x:Name="Ch2SquareParamsGroup" Header="Square Parameters" Margin="0,10" 
+                                Visibility="{Binding Ch2SelectedWaveform, 
+                                Converter={StaticResource VisibilityConverter}, 
+                                ConverterParameter=SQUARE}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Duty Cycle (%):" Width="100"/>
+                                            <TextBox x:Name="Ch2SquareDutyCycleTextBox" Width="150" LostFocus="Ch2SquareDutyCycleTextBox_LostFocus" Text="50.0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- Pulse Parameters -->
+                                <GroupBox x:Name="Ch2PulseParamsGroup" Header="Pulse Parameters" Margin="0,10" 
+                                      Visibility="{Binding Ch2SelectedWaveform, 
+                                      Converter={StaticResource VisibilityConverter}, 
+                                      ConverterParameter=PULSE}">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Period:" Width="100"/>
+                                            <TextBox x:Name="Ch2PulsePeriodTextBox" Width="100" LostFocus="Ch2PulsePeriodTextBox_LostFocus" Text="0.001"/>
+                                            <ComboBox x:Name="Ch2PulsePeriodUnitComboBox" Width="60" SelectionChanged="Ch2PulsePeriodUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Width:" Width="100"/>
+                                            <TextBox x:Name="Ch2PulseWidthTextBox" Width="100" LostFocus="Ch2PulseWidthTextBox_LostFocus" Text="0.0005"/>
+                                            <ComboBox x:Name="Ch2PulseWidthUnitComboBox" Width="60" SelectionChanged="Ch2PulseWidthUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Rise Time:" Width="100"/>
+                                            <TextBox x:Name="Ch2PulseRiseTimeTextBox" Width="100" LostFocus="Ch2PulseRiseTimeTextBox_LostFocus" Text="20"/>
+                                            <ComboBox x:Name="Ch2PulseRiseTimeUnitComboBox" Width="60" SelectionChanged="Ch2PulseRiseTimeUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Fall Time:" Width="100"/>
+                                            <TextBox x:Name="Ch2PulseFallTimeTextBox" Width="100" LostFocus="Ch2PulseFallTimeTextBox_LostFocus" Text="20"/>
+                                            <ComboBox x:Name="Ch2PulseFallTimeUnitComboBox" Width="60" SelectionChanged="Ch2PulseFallTimeUnitComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="Ms"/>
+                                                <ComboBoxItem Content="ks"/>
+                                                <ComboBoxItem Content="s"/>
+                                                <ComboBoxItem Content="ms"/>
+                                                <ComboBoxItem Content="µs"/>
+                                                <ComboBoxItem Content="ns"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <Button x:Name="Ch2ApplyButton" Content="Apply Settings" Margin="0,10" Click="Ch2ApplyButton_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <!-- Advanced Waveforms Tab -->
+            <TabItem Header="Advanced Waveforms">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Channel 1 Controls -->
+                    <GroupBox Header="Channel 1" Grid.Column="0" Margin="5">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Waveform:" Width="100"/>
+                                    <ComboBox x:Name="Ch1AdvancedWaveformComboBox" Width="150" SelectionChanged="Ch1AdvancedWaveformComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Dual-Tone"/>
+                                        <ComboBoxItem Content="PRBS"/>
+                                        <ComboBoxItem Content="RS232"/>
+                                        <ComboBoxItem Content="User"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <!-- Common Parameters for Advanced Waveforms -->
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Amplitude (Vpp):" Width="100"/>
+                                    <TextBox x:Name="Ch1AdvAmplitudeTextBox" Width="150" LostFocus="Ch1AmplitudeTextBox_LostFocus" Text="1.0"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Offset (V):" Width="100"/>
+                                    <TextBox x:Name="Ch1AdvOffsetTextBox" Width="150" LostFocus="Ch1OffsetTextBox_LostFocus" Text="0.0"/>
+                                </DockPanel>
+
+                                <!-- Dual-Tone Parameters -->
+                                <GroupBox x:Name="Ch1DualToneParamsGroup" Header="Dual-Tone Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Frequency 1 (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch1DualToneFreq1TextBox" Width="150" LostFocus="Ch1DualToneFreq1TextBox_LostFocus" Text="1000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Frequency 2 (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch1DualToneFreq2TextBox" Width="150" LostFocus="Ch1DualToneFreq2TextBox_LostFocus" Text="2000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Center Freq (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch1DualToneCenterFreqTextBox" Width="150" LostFocus="Ch1DualToneCenterFreqTextBox_LostFocus" Text="1500"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Offset Freq (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch1DualToneOffsetFreqTextBox" Width="150" LostFocus="Ch1DualToneOffsetFreqTextBox_LostFocus" Text="1000"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+
+                                <!-- PRBS Parameters -->
+                                <GroupBox x:Name="Ch1PRBSParamsGroup" Header="PRBS Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Bit Rate (bps):" Width="100"/>
+                                            <TextBox x:Name="Ch1PRBSBitRateTextBox" Width="150" LostFocus="Ch1PRBSBitRateTextBox_LostFocus" Text="2000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Type:" Width="100"/>
+                                            <ComboBox x:Name="Ch1PRBSDataTypeComboBox" Width="150" SelectionChanged="Ch1PRBSDataTypeComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="PRBS7"/>
+                                                <ComboBoxItem Content="PRBS9"/>
+                                                <ComboBoxItem Content="PRBS15"/>
+                                                <ComboBoxItem Content="PRBS23"/>
+                                                <ComboBoxItem Content="PRBS31"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- RS232 Parameters -->
+                                <GroupBox x:Name="Ch1RS232ParamsGroup" Header="RS232 Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Baud Rate:" Width="100"/>
+                                            <ComboBox x:Name="Ch1RS232BaudRateComboBox" Width="150" SelectionChanged="Ch1RS232BaudRateComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="9600"/>
+                                                <ComboBoxItem Content="19200"/>
+                                                <ComboBoxItem Content="38400"/>
+                                                <ComboBoxItem Content="57600"/>
+                                                <ComboBoxItem Content="115200"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Bits:" Width="100"/>
+                                            <ComboBox x:Name="Ch1RS232DataBitsComboBox" Width="150" SelectionChanged="Ch1RS232DataBitsComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="7"/>
+                                                <ComboBoxItem Content="8"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Stop Bits:" Width="100"/>
+                                            <ComboBox x:Name="Ch1RS232StopBitsComboBox" Width="150" SelectionChanged="Ch1RS232StopBitsComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="1"/>
+                                                <ComboBoxItem Content="1.5"/>
+                                                <ComboBoxItem Content="2"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Parity:" Width="100"/>
+                                            <ComboBox x:Name="Ch1RS232ParityComboBox" Width="150" SelectionChanged="Ch1RS232ParityComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="NONE"/>
+                                                <ComboBoxItem Content="ODD"/>
+                                                <ComboBoxItem Content="EVEN"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Value:" Width="100"/>
+                                            <TextBox x:Name="Ch1RS232DataTextBox" Width="150" LostFocus="Ch1RS232DataTextBox_LostFocus" Text="0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <Button x:Name="Ch1AdvApplyButton" Content="Apply Settings" Margin="0,10" Click="Ch1AdvApplyButton_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <!-- Channel 2 Controls for Advanced Waveforms -->
+                    <GroupBox Header="Channel 2" Grid.Column="1" Margin="5">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Waveform:" Width="100"/>
+                                    <ComboBox x:Name="Ch2AdvancedWaveformComboBox" Width="150" SelectionChanged="Ch2AdvancedWaveformComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Dual-Tone"/>
+                                        <ComboBoxItem Content="PRBS"/>
+                                        <ComboBoxItem Content="RS232"/>
+                                        <ComboBoxItem Content="User"/>
+                                    </ComboBox>
+                                </DockPanel>
+
+                                <!-- Common Parameters for Advanced Waveforms -->
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Amplitude (Vpp):" Width="100"/>
+                                    <TextBox x:Name="Ch2AdvAmplitudeTextBox" Width="150" LostFocus="Ch2AmplitudeTextBox_LostFocus" Text="1.0"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Offset (V):" Width="100"/>
+                                    <TextBox x:Name="Ch2AdvOffsetTextBox" Width="150" LostFocus="Ch2OffsetTextBox_LostFocus" Text="0.0"/>
+                                </DockPanel>
+
+                                <!-- Dual-Tone Parameters -->
+                                <GroupBox x:Name="Ch2DualToneParamsGroup" Header="Dual-Tone Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Frequency 1 (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch2DualToneFreq1TextBox" Width="150" LostFocus="Ch2DualToneFreq1TextBox_LostFocus" Text="1000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Frequency 2 (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch2DualToneFreq2TextBox" Width="150" LostFocus="Ch2DualToneFreq2TextBox_LostFocus" Text="2000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Center Freq (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch2DualToneCenterFreqTextBox" Width="150" LostFocus="Ch2DualToneCenterFreqTextBox_LostFocus" Text="1500"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Offset Freq (Hz):" Width="100"/>
+                                            <TextBox x:Name="Ch2DualToneOffsetFreqTextBox" Width="150" LostFocus="Ch2DualToneOffsetFreqTextBox_LostFocus" Text="1000"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- PRBS Parameters -->
+                                <GroupBox x:Name="Ch2PRBSParamsGroup" Header="PRBS Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Bit Rate (bps):" Width="100"/>
+                                            <TextBox x:Name="Ch2PRBSBitRateTextBox" Width="150" LostFocus="Ch2PRBSBitRateTextBox_LostFocus" Text="2000"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Type:" Width="100"/>
+                                            <ComboBox x:Name="Ch2PRBSDataTypeComboBox" Width="150" SelectionChanged="Ch2PRBSDataTypeComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="PRBS7"/>
+                                                <ComboBoxItem Content="PRBS9"/>
+                                                <ComboBoxItem Content="PRBS15"/>
+                                                <ComboBoxItem Content="PRBS23"/>
+                                                <ComboBoxItem Content="PRBS31"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <!-- RS232 Parameters -->
+                                <GroupBox x:Name="Ch2RS232ParamsGroup" Header="RS232 Parameters" Margin="0,10" Visibility="Collapsed">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Baud Rate:" Width="100"/>
+                                            <ComboBox x:Name="Ch2RS232BaudRateComboBox" Width="150" SelectionChanged="Ch2RS232BaudRateComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="9600"/>
+                                                <ComboBoxItem Content="19200"/>
+                                                <ComboBoxItem Content="38400"/>
+                                                <ComboBoxItem Content="57600"/>
+                                                <ComboBoxItem Content="115200"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Bits:" Width="100"/>
+                                            <ComboBox x:Name="Ch2RS232DataBitsComboBox" Width="150" SelectionChanged="Ch2RS232DataBitsComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="7"/>
+                                                <ComboBoxItem Content="8"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Stop Bits:" Width="100"/>
+                                            <ComboBox x:Name="Ch2RS232StopBitsComboBox" Width="150" SelectionChanged="Ch2RS232StopBitsComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="1"/>
+                                                <ComboBoxItem Content="1.5"/>
+                                                <ComboBoxItem Content="2"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Parity:" Width="100"/>
+                                            <ComboBox x:Name="Ch2RS232ParityComboBox" Width="150" SelectionChanged="Ch2RS232ParityComboBox_SelectionChanged">
+                                                <ComboBoxItem Content="NONE"/>
+                                                <ComboBoxItem Content="ODD"/>
+                                                <ComboBoxItem Content="EVEN"/>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,5">
+                                            <Label Content="Data Value:" Width="100"/>
+                                            <TextBox x:Name="Ch2RS232DataTextBox" Width="150" LostFocus="Ch2RS232DataTextBox_LostFocus" Text="0"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <Button x:Name="Ch2AdvApplyButton" Content="Apply Settings" Margin="0,10" Click="Ch2AdvApplyButton_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <!-- Waveform Functions Tab -->
+            <TabItem Header="Waveform Functions">
+                <local:WaveformFunctionTab x:Name="WaveformFunctionTabControl"/>
+            </TabItem>
+        </TabControl>
+
+        <!-- Command Log -->
+        <GroupBox Header="Command Log" Grid.Row="2" Margin="10,0,10,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="CommandLogTextBox" Grid.Column="0" Height="100" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"/>
+                <Button x:Name="ClearLogButton" Content="Clear Log" Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Bottom" Click="ClearLogButton_Click"/>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>
